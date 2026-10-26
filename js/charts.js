@@ -3,6 +3,8 @@
 
   const tooltipEl = document.getElementById('chartTooltip');
 
+  const FONT_BASE = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
   function formatCurrency(val) {
     const sign = val < 0 ? '-' : '';
     return sign + 'RM ' + Math.abs(val).toLocaleString('en-MY', {
@@ -23,21 +25,23 @@
   function getThemeColors() {
     const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     return {
-      grid: isLight ? '#e5e5ea' : '#2c2c2e',
-      text: isLight ? '#86868b' : '#86868b',
-      textStrong: isLight ? '#1d1d1f' : '#f5f5f7',
-      cardBg: isLight ? '#ffffff' : '#1d1d1f',
-      income: isLight ? '#248a3d' : '#30d158',
-      expense: isLight ? '#d70015' : '#ff453a',
-      net: isLight ? '#0071e3' : '#2997ff'
+      grid: isLight ? '#E5E5EA' : 'rgba(255, 255, 255, 0.08)',
+      text: isLight ? '#6E6E73' : '#94A3B8',
+      textStrong: isLight ? '#1D1D1F' : '#F5F5F7',
+      cardBg: isLight ? '#FFFFFF' : '#152238',
+      income: isLight ? '#248A3D' : '#30D158',
+      expense: isLight ? '#D70015' : '#FF453A',
+      net: isLight ? '#142B4A' : '#2997FF',
+      navyPrimary: isLight ? '#142B4A' : '#1E3A5F',
+      accentBlue: isLight ? '#0071E3' : '#2997FF'
     };
   }
 
   function setupHiDPICanvas(canvas) {
     const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.parentElement.getBoundingClientRect();
-    const width = Math.max(240, rect.width);
-    const height = Math.max(200, rect.height);
+    const parent = canvas.parentElement;
+    const width = Math.max(160, parent.clientWidth || 260);
+    const height = Math.max(170, parent.clientHeight || 210);
     canvas.width = width * dpr;
     canvas.height = height * dpr;
     canvas.style.width = width + 'px';
@@ -109,7 +113,7 @@
     ctx.strokeStyle = theme.grid;
     ctx.lineWidth = 1;
     ctx.fillStyle = theme.text;
-    ctx.font = '11px -apple-system, BlinkMacSystemFont, "SF Pro Text", "San Francisco", sans-serif';
+    ctx.font = `11px ${FONT_BASE}`;
     ctx.textAlign = 'right';
 
     for (let i = 0; i <= steps; i++) {
@@ -285,12 +289,12 @@
 
     if (mode === 'donut') {
       ctx.fillStyle = theme.text;
-      ctx.font = '11px -apple-system, BlinkMacSystemFont, "SF Pro Text", "San Francisco", sans-serif';
+      ctx.font = `11px ${FONT_BASE}`;
       ctx.textAlign = 'center';
       ctx.fillText('TOTAL SPENT', cx, cy - 6);
 
       ctx.fillStyle = theme.textStrong;
-      ctx.font = 'bold 15px -apple-system, BlinkMacSystemFont, "SF Pro Text", "San Francisco", sans-serif';
+      ctx.font = `bold 15px ${FONT_BASE}`;
       ctx.fillText(formatCurrency(total), cx, cy + 14);
     }
 
@@ -361,7 +365,7 @@
     const steps = 4;
     ctx.strokeStyle = theme.grid;
     ctx.fillStyle = theme.text;
-    ctx.font = '11px -apple-system, BlinkMacSystemFont, "SF Pro Text", "San Francisco", sans-serif';
+    ctx.font = `11px ${FONT_BASE}`;
     ctx.textAlign = 'right';
 
     for (let i = 0; i <= steps; i++) {
@@ -438,10 +442,10 @@
       return;
     }
 
-    const padLeft = 118;
-    const padRight = 56;
-    const padTop = 14;
-    const padBottom = 22;
+    const padLeft = 8;
+    const padRight = 8;
+    const padTop = 8;
+    const padBottom = 10;
     const plotW = width - padLeft - padRight;
     const plotH = height - padTop - padBottom;
 
@@ -449,52 +453,44 @@
     topItems.forEach((b) => {
       maxVal = Math.max(maxVal, b.monthlyAvg, b.budget);
     });
-    maxVal *= 1.15;
+    maxVal *= 1.1;
 
     const rowH = plotH / topItems.length;
     const hitRows = [];
 
     topItems.forEach((b, idx) => {
-      const yCenter = padTop + idx * rowH + rowH / 2;
-      const barH = Math.min(14, rowH * 0.42);
+      const rowTop = padTop + idx * rowH;
+      const barY = rowTop + rowH * 0.56;
+      const barH = Math.min(8, Math.max(5, rowH * 0.24));
+      const pct = b.budget > 0 ? Math.round((b.monthlyAvg / b.budget) * 100) : 0;
+      const isOver = b.budget > 0 && b.monthlyAvg > b.budget;
 
-      // Category label
-      ctx.fillStyle = theme.text;
-      ctx.font = '11px -apple-system, BlinkMacSystemFont, "SF Pro Text", "San Francisco", sans-serif';
+      // Top-left Category label
+      ctx.fillStyle = theme.textStrong;
+      ctx.font = `500 11px ${FONT_BASE}`;
+      ctx.textAlign = 'left';
+      ctx.fillText(b.category, padLeft, barY - 6);
+
+      // Top-right Percentage & Spend label
+      ctx.fillStyle = isOver ? theme.expense : theme.text;
+      ctx.font = `11px ${FONT_BASE}`;
       ctx.textAlign = 'right';
-      ctx.fillText(b.category, padLeft - 10, yCenter + 4);
+      ctx.fillText(`${formatCompact(b.monthlyAvg)} (${pct}%)`, padLeft + plotW, barY - 6);
 
-      // Background budget target track
-      const budgetW = (b.budget / maxVal) * plotW;
+      // Background budget track
       ctx.fillStyle = theme.grid;
-      ctx.fillRect(padLeft, yCenter - barH / 2, plotW, barH);
+      drawHorizontalRoundedRect(ctx, padLeft, barY, plotW, barH, barH / 2);
 
       // Actual average monthly spend bar
-      const actualW = (b.monthlyAvg / maxVal) * plotW;
-      const isOver = b.budget > 0 && b.monthlyAvg > b.budget;
-      ctx.fillStyle = isOver ? theme.expense : b.color || theme.net;
-      ctx.fillRect(padLeft, yCenter - barH / 2, Math.max(2, actualW), barH);
-
-      // Target marker line
-      if (b.budget > 0) {
-        const markerX = padLeft + budgetW;
-        ctx.strokeStyle = theme.textStrong;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(markerX, yCenter - barH / 2 - 3);
-        ctx.lineTo(markerX, yCenter + barH / 2 + 3);
-        ctx.stroke();
+      const actualW = Math.min(plotW, (b.monthlyAvg / maxVal) * plotW);
+      if (actualW > 0) {
+        ctx.fillStyle = isOver ? theme.expense : b.color || theme.net;
+        drawHorizontalRoundedRect(ctx, padLeft, barY, Math.max(4, actualW), barH, barH / 2);
       }
 
-      // Percentage label at right
-      const pct = b.budget > 0 ? Math.round((b.monthlyAvg / b.budget) * 100) : 0;
-      ctx.fillStyle = isOver ? theme.expense : theme.text;
-      ctx.textAlign = 'left';
-      ctx.fillText(`${pct}%`, padLeft + plotW + 8, yCenter + 4);
-
       hitRows.push({
-        yTop: padTop + idx * rowH,
-        yBottom: padTop + (idx + 1) * rowH,
+        yTop: rowTop,
+        yBottom: rowTop + rowH,
         item: b,
         pct
       });
@@ -518,6 +514,23 @@
     canvas.onmouseleave = hideTooltip;
   }
 
+  function drawHorizontalRoundedRect(ctx, x, y, w, h, r) {
+    if (w <= 0 || h <= 0) return;
+    const radius = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   function drawRoundedBar(ctx, x, y, w, h, r) {
     if (h <= 0) return;
     const radius = Math.min(r, w / 2, h / 2);
@@ -534,7 +547,7 @@
 
   function drawEmptyState(ctx, width, height, theme, message) {
     ctx.fillStyle = theme.text;
-    ctx.font = '13px -apple-system, BlinkMacSystemFont, "SF Pro Text", "San Francisco", sans-serif';
+    ctx.font = `13px ${FONT_BASE}`;
     ctx.textAlign = 'center';
     ctx.fillText(message, width / 2, height / 2);
   }

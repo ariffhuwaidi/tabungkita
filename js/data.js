@@ -1,9 +1,9 @@
 (function () {
   window.FinPulse = window.FinPulse || {};
 
-  const STORAGE_KEY_TX = 'finpulse_transactions_v2_my';
-  const STORAGE_KEY_BUDGETS = 'finpulse_budgets_v2_my';
-  const STORAGE_KEY_JANM = 'finpulse_janm_rule_v1';
+  const STORAGE_KEY_TX = 'tabungkita_transactions_v3_clean';
+  const STORAGE_KEY_BUDGETS = 'tabungkita_budgets_v3_clean';
+  const STORAGE_KEY_JANM = 'tabungkita_janm_rule_v2_clean';
 
   const CATEGORIES = {
     'Housing & Loan (LPPSA/Rent)': { type: 'expense', color: '#6366f1', defaultBudget: 1450 },
@@ -260,7 +260,7 @@
       console.warn('Could not read JANM rule:', err);
     }
     const defaultRule = {
-      enabled: true,
+      enabled: false,
       netAmount: 4850.00,
       account: 'RHB Bank (Salary / Debit)',
       scheduleMode: 'janm_official', // 'janm_official' or 'fixed_day'
@@ -284,16 +284,16 @@
       const raw = localStorage.getItem(STORAGE_KEY_TX);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           return parsed;
         }
       }
     } catch (err) {
       console.warn('Could not read transactions from localStorage:', err);
     }
-    const seed = generateSeedTransactions();
-    saveTransactions(seed);
-    return seed;
+    const empty = [];
+    saveTransactions(empty);
+    return empty;
   }
 
   function saveTransactions(list) {
@@ -302,6 +302,12 @@
     } catch (err) {
       console.warn('Could not save transactions to localStorage:', err);
     }
+  }
+
+  function clearAllTransactions() {
+    const empty = [];
+    saveTransactions(empty);
+    return empty;
   }
 
   function resetTransactionsToSeed() {
@@ -343,6 +349,7 @@
     saveJANMRule,
     loadTransactions,
     saveTransactions,
+    clearAllTransactions,
     resetTransactionsToSeed,
     loadBudgets,
     saveBudgets,

@@ -31,33 +31,36 @@
   const els = {
     appShell: document.getElementById('appShell'),
     btnSidebarToggle: document.getElementById('btnSidebarToggle'),
-    salutationPrefix: document.getElementById('salutationPrefix'),
-    userNicknameDisplay: document.getElementById('userNicknameDisplay'),
-    btnEditNickname: document.getElementById('btnEditNickname'),
-
-    btnAuthOpen: document.getElementById('btnAuthOpen'),
-    authStatusDot: document.getElementById('authStatusDot'),
-    authAccountLabel: document.getElementById('authAccountLabel'),
-    authModal: document.getElementById('authModal'),
-    btnCloseAuthModal: document.getElementById('btnCloseAuthModal'),
-    btnCancelAuthModal: document.getElementById('btnCancelAuthModal'),
-    btnSignInApple: document.getElementById('btnSignInApple'),
-    btnSignInGoogle: document.getElementById('btnSignInGoogle'),
-    authProfileForm: document.getElementById('authProfileForm'),
-    authNicknameInput: document.getElementById('authNicknameInput'),
-    authEmailInput: document.getElementById('authEmailInput'),
-    authConnectedInfo: document.getElementById('authConnectedInfo'),
-    authConnectedBadge: document.getElementById('authConnectedBadge'),
-    btnSignOutAccount: document.getElementById('btnSignOutAccount'),
+    btnMobileAddTx: document.getElementById('btnMobileAddTx'),
+    btnMobileSmartCapture: document.getElementById('btnMobileSmartCapture'),
+    btnMobileThemeToggle: document.getElementById('btnMobileThemeToggle'),
+    btnToggleMobileFilters: document.getElementById('btnToggleMobileFilters'),
+    filterSecondaryRow: document.getElementById('filterSecondaryRow'),
+    customDateGroup: document.getElementById('customDateGroup'),
 
     navItems: document.querySelectorAll('.nav-item'),
     pageTitle: document.getElementById('pageTitle'),
     activeFilterSummary: document.getElementById('activeFilterSummary'),
     viewDashboard: document.getElementById('viewDashboard'),
     viewTransactions: document.getElementById('viewTransactions'),
+    viewReports: document.getElementById('viewReports'),
     viewBudgets: document.getElementById('viewBudgets'),
     viewSync: document.getElementById('viewSync'),
+    viewGuide: document.getElementById('viewGuide'),
     btnQuickSmartCapture: document.getElementById('btnQuickSmartCapture'),
+
+    homeNetBalance: document.getElementById('homeNetBalance'),
+    homeMonthlyIncome: document.getElementById('homeMonthlyIncome'),
+    homeMonthlyExpense: document.getElementById('homeMonthlyExpense'),
+    homeSavingsRate: document.getElementById('homeSavingsRate'),
+    btnHomeAddExpense: document.getElementById('btnHomeAddExpense'),
+    btnHomeTodayQuickAdd: document.getElementById('btnHomeTodayQuickAdd'),
+    homeTodayList: document.getElementById('homeTodayList'),
+    homeTodaySubtitle: document.getElementById('homeTodaySubtitle'),
+    homeBudgetSummary: document.getElementById('homeBudgetSummary'),
+    btnHomeManageBudgets: document.getElementById('btnHomeManageBudgets'),
+    btnHomeViewActivity: document.getElementById('btnHomeViewActivity'),
+    btnHomeViewReports: document.getElementById('btnHomeViewReports'),
 
     smartParserInput: document.getElementById('smartParserInput'),
     btnLoadSampleAlerts: document.getElementById('btnLoadSampleAlerts'),
@@ -113,11 +116,13 @@
 
     tableCountLabel: document.getElementById('tableCountLabel'),
     pageSizeSelect: document.getElementById('pageSizeSelect'),
+    mobileTransactionsList: document.getElementById('mobileTransactionsList'),
     transactionsTable: document.getElementById('transactionsTable'),
     transactionsTableBody: document.getElementById('transactionsTableBody'),
     paginationInfo: document.getElementById('paginationInfo'),
     btnPrevPage: document.getElementById('btnPrevPage'),
     btnNextPage: document.getElementById('btnNextPage'),
+    btnClearAllTable: document.getElementById('btnClearAllTable'),
 
     budgetsGrid: document.getElementById('budgetsGrid'),
 
@@ -127,6 +132,10 @@
     transactionForm: document.getElementById('transactionForm'),
     btnCloseModal: document.getElementById('btnCloseModal'),
     btnCancelModal: document.getElementById('btnCancelModal'),
+    btnTypeExpense: document.getElementById('btnTypeExpense'),
+    btnTypeIncome: document.getElementById('btnTypeIncome'),
+    quickCategoryChips: document.getElementById('quickCategoryChips'),
+    btnSaveTransaction: document.getElementById('btnSaveTransaction'),
     txId: document.getElementById('txId'),
     txType: document.getElementById('txType'),
     txDate: document.getElementById('txDate'),
@@ -143,12 +152,10 @@
     csvImportInput: document.getElementById('csvImportInput'),
     btnResetDemo: document.getElementById('btnResetDemo'),
     btnThemeToggle: document.getElementById('btnThemeToggle'),
-    btnMobileThemeToggle: document.getElementById('btnMobileThemeToggle'),
     themeToggleLabel: document.getElementById('themeToggleLabel'),
     toastContainer: document.getElementById('toastContainer')
   };
 
-  const STORAGE_KEY_PROFILE = 'tabungkita_user_profile_v1';
   const STORAGE_KEY_SIDEBAR = 'tabungkita_sidebar_collapsed_v1';
   const STORAGE_KEY_THEME = 'tabungkita_theme_pref_v1';
 
@@ -171,7 +178,6 @@
     const activeTheme = saved === 'dark' || saved === 'light' ? saved : getDeviceSystemTheme();
     applyTheme(activeTheme);
 
-    // Automatically follow OS / iPhone dark-light mode changes when no manual override is locked
     if (window.matchMedia) {
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
       const handleSystemChange = (e) => {
@@ -191,7 +197,6 @@
   function toggleThemeManual() {
     const current = document.documentElement.getAttribute('data-theme') || getDeviceSystemTheme();
     const next = current === 'dark' ? 'light' : 'dark';
-    // If the user switches back to match their device's native setting, clear manual override so it stays synced with OS
     if (next === getDeviceSystemTheme()) {
       localStorage.removeItem(STORAGE_KEY_THEME);
     } else {
@@ -199,73 +204,6 @@
     }
     applyTheme(next);
     renderAll();
-  }
-
-  function loadUserProfile() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY_PROFILE);
-      if (raw) return JSON.parse(raw);
-    } catch (err) {
-      console.warn('Could not load user profile:', err);
-    }
-    return {
-      nickname: 'Amir',
-      email: '',
-      provider: null // 'apple' | 'google' | null
-    };
-  }
-
-  function saveUserProfile(profile) {
-    try {
-      localStorage.setItem(STORAGE_KEY_PROFILE, JSON.stringify(profile));
-    } catch (err) {
-      console.warn('Could not save user profile:', err);
-    }
-  }
-
-  function getTimeOfDayGreeting() {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
-    return 'Good Evening';
-  }
-
-  function renderSalutationAndAuth() {
-    const profile = loadUserProfile();
-    if (els.salutationPrefix) {
-      els.salutationPrefix.textContent = getTimeOfDayGreeting();
-    }
-    if (els.userNicknameDisplay) {
-      els.userNicknameDisplay.textContent = profile.nickname || 'Amir';
-    }
-
-    if (els.authStatusDot && els.authAccountLabel) {
-      if (profile.provider) {
-        els.authStatusDot.classList.add('connected');
-        const provName = profile.provider === 'apple' ? 'Apple ID' : 'Google';
-        els.authAccountLabel.textContent = `${provName} • ${profile.nickname}`;
-      } else {
-        els.authStatusDot.classList.remove('connected');
-        els.authAccountLabel.textContent = 'Sign in with Apple / Google';
-      }
-    }
-
-    if (els.authNicknameInput) els.authNicknameInput.value = profile.nickname || 'Amir';
-    if (els.authEmailInput) els.authEmailInput.value = profile.email || '';
-
-    if (els.authConnectedInfo && els.authConnectedBadge && els.btnSignOutAccount) {
-      if (profile.provider) {
-        els.authConnectedInfo.hidden = false;
-        els.btnSignOutAccount.hidden = false;
-        els.authConnectedBadge.textContent =
-          profile.provider === 'apple'
-            ? `Connected via Apple ID (${profile.email || 'iCloud Auto-Capture'})`
-            : `Connected via Google Account (${profile.email || 'Gmail & Sheets Sync'})`;
-      } else {
-        els.authConnectedInfo.hidden = true;
-        els.btnSignOutAccount.hidden = true;
-      }
-    }
   }
 
   function initSidebarState() {
@@ -281,39 +219,7 @@
     localStorage.setItem(STORAGE_KEY_SIDEBAR, String(nextState));
     setTimeout(() => {
       renderAll();
-    }, 300);
-  }
-
-  function openAuthModal() {
-    renderSalutationAndAuth();
-    if (els.authModal) {
-      els.authModal.hidden = false;
-      if (els.authNicknameInput) els.authNicknameInput.focus();
-    }
-  }
-
-  function closeAuthModal() {
-    if (els.authModal) els.authModal.hidden = true;
-  }
-
-  function handleProviderSignIn(provider) {
-    const current = loadUserProfile();
-    const nickname = (els.authNicknameInput && els.authNicknameInput.value.trim()) || current.nickname || 'Amir';
-    const defaultDomain = provider === 'apple' ? 'icloud.com' : 'gmail.com';
-    const enteredEmail = els.authEmailInput && els.authEmailInput.value.trim();
-    const email = enteredEmail || `${nickname.toLowerCase().replace(/[^a-z0-9]/g, '')}@${defaultDomain}`;
-
-    const updated = {
-      nickname,
-      email,
-      provider
-    };
-    saveUserProfile(updated);
-    renderSalutationAndAuth();
-    closeAuthModal();
-
-    const providerLabel = provider === 'apple' ? 'Apple ID (iCloud & Wallet)' : 'Google Account (Gmail & Sheets)';
-    showToast(`Signed in with ${providerLabel} as ${nickname}`);
+    }, 280);
   }
 
   function init() {
@@ -322,9 +228,8 @@
 
     initThemeFromDeviceSettings();
     initSidebarState();
-    renderSalutationAndAuth();
 
-    // 1. Check JANM -> RHB Bank Silent Salary Auto-Detector
+    // 1. Check JANM -> RHB Bank Auto-Salary Detector (only if user enabled Automatic mode)
     if (Sync && typeof Sync.checkAndPostJANMSalary === 'function') {
       const janmCheck = Sync.checkAndPostJANMSalary(state.transactions, false);
       if (janmCheck.posted && janmCheck.transaction) {
@@ -345,7 +250,7 @@
         state.transactions.unshift(autoCaptured);
         Data.saveTransactions(state.transactions);
         setTimeout(() => {
-          showToast(`Auto-captured from iPhone Shortcut: ${autoCaptured.description} (${Charts.formatCurrency(autoCaptured.amount)})`);
+          showToast(`Auto-captured: ${autoCaptured.description} (${Charts.formatCurrency(autoCaptured.amount)})`);
         }, 250);
       }
     }
@@ -354,7 +259,7 @@
     populateSelectOptions();
     applyDatePreset(state.filters.preset);
     bindEvents();
-    renderAll();
+    switchView('dashboard');
   }
 
   function initSyncSettingsUI() {
@@ -365,10 +270,9 @@
     if (els.syncStatusText) {
       els.syncStatusText.textContent = cfg.lastSyncedAt
         ? `Last synced: ${new Date(cfg.lastSyncedAt).toLocaleString()}`
-        : 'Not synced yet — paste Web App URL above';
+        : 'Not synced yet';
     }
 
-    // Populate JANM -> RHB Rule inputs & status
     const rule = Data.loadJANMRule();
     if (els.janmNetAmount) els.janmNetAmount.value = Number(rule.netAmount || 4850).toFixed(2);
     if (els.janmScheduleMode) els.janmScheduleMode.value = rule.scheduleMode || 'janm_official';
@@ -389,15 +293,13 @@
         : Data.getJANMPaydayForMonth(now.getFullYear(), now.getMonth() + 1);
 
     if (els.janmStatusBadge) {
-      els.janmStatusBadge.textContent = rule.enabled
-        ? 'Active — Auto-Payday Enabled'
-        : 'Manual Confirmation Mode';
+      els.janmStatusBadge.textContent = rule.enabled ? 'Automatic' : 'Manual';
     }
 
     if (check.alreadyExists) {
-      els.janmCurrentMonthInfo.innerHTML = `<span style="color:var(--color-income);font-weight:600;">✓ ${ymKey} JANM Gaji Bersih (${Charts.formatCurrency(rule.netAmount)}) is already recorded in RHB Bank</span> (Payday: ${payday}/${now.getMonth() + 1}/${now.getFullYear()}).`;
+      els.janmCurrentMonthInfo.innerHTML = `<span style="color:var(--color-income);font-weight:600;">✓ ${ymKey} JANM Gaji Bersih (${Charts.formatCurrency(rule.netAmount)}) recorded in RHB Bank.</span>`;
     } else {
-      els.janmCurrentMonthInfo.innerHTML = `Scheduled JANM Payday for <strong>${ymKey}</strong>: <strong>Day ${payday}</strong> — Target: <strong>${Charts.formatCurrency(rule.netAmount)} → RHB Bank (Salary / Debit)</strong>.`;
+      els.janmCurrentMonthInfo.innerHTML = `Next JANM Payday (${ymKey}): <strong>Day ${payday}</strong> • <strong>${Charts.formatCurrency(rule.netAmount)} → RHB Bank</strong>`;
     }
   }
 
@@ -428,6 +330,10 @@
     const todayStr = Data.formatDateISO(now);
     let fromStr = '';
     let toStr = todayStr;
+
+    if (els.customDateGroup) {
+      els.customDateGroup.hidden = preset !== 'custom';
+    }
 
     if (preset === 'all') {
       fromStr = '';
@@ -539,7 +445,7 @@
       };
     });
 
-    const paletteFallback = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6', '#14b8a6', '#f43f5e'];
+    const paletteFallback = ['#0071e3', '#30d158', '#ff9f0a', '#ff375f', '#5e5ce6', '#bf5af2', '#64d2ff', '#ff453a'];
     const categorySeries = Object.keys(categoryTotals)
       .map((cat, idx) => {
         const amount = Number(categoryTotals[cat].toFixed(2));
@@ -590,15 +496,15 @@
     const parts = [];
     const { dateFrom, dateTo, type, category, account, search } = state.filters;
     if (dateFrom || dateTo) {
-      parts.push(`Period: ${dateFrom || 'Start'} to ${dateTo || 'Present'}`);
+      parts.push(`${dateFrom || 'Start'} – ${dateTo || 'Now'}`);
     } else {
-      parts.push('Period: All Time');
+      parts.push('All Time');
     }
-    if (type !== 'all') parts.push(`Type: ${type}`);
-    if (category !== 'all') parts.push(`Category: ${category}`);
-    if (account !== 'all') parts.push(`Account: ${account}`);
-    if (search) parts.push(`Search: "${search}"`);
-    return `${parts.join(' • ')} (${count} transactions)`;
+    if (type !== 'all') parts.push(type);
+    if (category !== 'all') parts.push(category);
+    if (account !== 'all') parts.push(account);
+    if (search) parts.push(`"${search}"`);
+    return `${parts.join(' • ')} • ${count} transaction${count === 1 ? '' : 's'}`;
   }
 
   function renderAll() {
@@ -607,6 +513,7 @@
     const summaryText = buildFilterSummaryText(filtered.length);
 
     els.activeFilterSummary.textContent = summaryText;
+    renderHomeView();
     renderKPIs(analytics.kpis);
     renderCharts(analytics);
     renderCategoryLegend(analytics.categorySeries);
@@ -615,26 +522,194 @@
     updateJANMStatusBanner();
   }
 
+  function renderHomeView() {
+    const now = new Date();
+    const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const todayISO = Data.formatDateISO(now);
+
+    let allIncome = 0;
+    let allExpense = 0;
+    let monthIncome = 0;
+    let monthExpense = 0;
+
+    const monthCategoryTotals = {};
+    const todayTransactions = [];
+
+    state.transactions.forEach((tx) => {
+      const amt = Number(tx.amount) || 0;
+      const isThisMonth = (tx.date || '').slice(0, 7) === currentYM;
+      const isToday = tx.date === todayISO;
+
+      if (tx.type === 'income') {
+        allIncome += amt;
+        if (isThisMonth) monthIncome += amt;
+      } else {
+        allExpense += amt;
+        if (isThisMonth) {
+          monthExpense += amt;
+          monthCategoryTotals[tx.category] = (monthCategoryTotals[tx.category] || 0) + amt;
+        }
+      }
+
+      if (isToday) {
+        todayTransactions.push(tx);
+      }
+    });
+
+    const netRecorded = allIncome - allExpense;
+    const monthSavingsRate = monthIncome > 0 ? Math.max(0, ((monthIncome - monthExpense) / monthIncome) * 100) : 0;
+
+    if (els.homeNetBalance) {
+      els.homeNetBalance.textContent = (netRecorded < 0 ? '-' : '') + Charts.formatCurrency(netRecorded);
+      els.homeNetBalance.style.color = netRecorded < 0 ? 'var(--color-expense)' : 'var(--text-primary)';
+    }
+
+    if (els.homeMonthlyIncome) {
+      els.homeMonthlyIncome.textContent = `+${Charts.formatCurrency(monthIncome)}`;
+    }
+
+    if (els.homeMonthlyExpense) {
+      els.homeMonthlyExpense.textContent = `-${Charts.formatCurrency(monthExpense)}`;
+    }
+
+    if (els.homeSavingsRate) {
+      els.homeSavingsRate.textContent = `${monthSavingsRate.toFixed(1)}%`;
+    }
+
+    // Render Today's Transactions List
+    if (els.homeTodayList) {
+      if (todayTransactions.length === 0) {
+        els.homeTodayList.innerHTML = `
+          <div class="home-empty-today">
+            <span class="home-empty-text">No expenses recorded today</span>
+            <button class="btn btn-secondary btn-sm" id="btnEmptyAddToday">
+              + Log Today's Expense
+            </button>
+          </div>
+        `;
+        const btnEmpty = document.getElementById('btnEmptyAddToday');
+        if (btnEmpty) btnEmpty.addEventListener('click', () => openAddModal('expense'));
+      } else {
+        els.homeTodayList.innerHTML = todayTransactions
+          .map((tx) => {
+            const isInc = tx.type === 'income';
+            const sign = isInc ? '+' : '-';
+            const catData = Data.CATEGORIES[tx.category] || {};
+            const color = catData.color || (isInc ? 'var(--color-income)' : 'var(--navy-primary)');
+            return `
+              <div class="mobile-tx-card" style="border-left: 3.5px solid ${color};">
+                <div class="mobile-tx-top">
+                  <div class="mobile-tx-merchant">${Export.escapeHtml(tx.description)}</div>
+                  <div class="mobile-tx-amount ${isInc ? 'amount-income' : 'amount-expense'}">
+                    ${sign}${Charts.formatCurrency(tx.amount)}
+                  </div>
+                </div>
+                <div class="mobile-tx-sub">
+                  <span>${Export.escapeHtml(tx.category)}</span>
+                  <span>•</span>
+                  <span>${Export.escapeHtml(tx.account)}</span>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+      }
+    }
+
+    if (els.homeTodaySubtitle) {
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      els.homeTodaySubtitle.textContent = `${dayNames[now.getDay()]}, ${now.getDate()} ${monthNames[now.getMonth()]} • ${todayTransactions.length} recorded`;
+    }
+
+    // Render Compact Monthly Spending & Budget Summary
+    if (els.homeBudgetSummary) {
+      const expenseCats = Object.keys(Data.CATEGORIES).filter((c) => Data.CATEGORIES[c].type === 'expense');
+      const catSummaries = expenseCats
+        .map((cat) => {
+          const spent = monthCategoryTotals[cat] || 0;
+          const budget = Number(state.budgets[cat] || Data.CATEGORIES[cat].defaultBudget || 0);
+          const color = Data.CATEGORIES[cat].color || '#142B4A';
+          return { cat, spent, budget, color };
+        })
+        .sort((a, b) => b.spent - a.spent);
+
+      const topCats = catSummaries.slice(0, 4);
+      let totalBudget = 0;
+      expenseCats.forEach((c) => {
+        totalBudget += Number(state.budgets[c] || Data.CATEGORIES[c].defaultBudget || 0);
+      });
+
+      if (monthExpense === 0 && totalBudget === 0) {
+        els.homeBudgetSummary.innerHTML = `
+          <div style="color:var(--text-muted);font-size:0.84rem;text-align:center;padding:1rem 0;">
+            No monthly spending recorded yet. Tap "+ Add Expense" above.
+          </div>
+        `;
+      } else {
+        const rowsHtml = topCats
+          .map((item) => {
+            const pct = item.budget > 0 ? Math.min(100, Math.round((item.spent / item.budget) * 100)) : 0;
+            const isOver = item.budget > 0 && item.spent > item.budget;
+            const barBg = isOver ? 'var(--color-expense)' : item.color;
+            return `
+              <div class="home-budget-row">
+                <div class="home-budget-info">
+                  <span class="home-budget-cat">
+                    <span class="legend-swatch" style="background:${item.color}"></span>
+                    ${Export.escapeHtml(item.cat)}
+                  </span>
+                  <span class="home-budget-amounts">
+                    <strong>${Charts.formatCurrency(item.spent)}</strong> / ${Charts.formatCurrency(item.budget)}
+                  </span>
+                </div>
+                <div class="home-budget-track">
+                  <div class="home-budget-fill" style="width:${pct}%;background:${barBg};"></div>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+
+        const totalPct = totalBudget > 0 ? Math.min(100, Math.round((monthExpense / totalBudget) * 100)) : 0;
+        const totalHtml = `
+          ${rowsHtml}
+          <div class="home-budget-footer">
+            <span>Total Spent This Month: <strong>${Charts.formatCurrency(monthExpense)}</strong></span>
+            <span>Total Budget: <strong>${Charts.formatCurrency(totalBudget)}</strong> (${totalPct}%)</span>
+          </div>
+        `;
+        els.homeBudgetSummary.innerHTML = totalHtml;
+      }
+    }
+  }
+
   function renderKPIs(kpis) {
     const fmt = Charts.formatCurrency;
     els.kpiIncome.textContent = fmt(kpis.totalIncome);
-    els.kpiIncomeMeta.textContent = `${kpis.incomeCount} income transaction${kpis.incomeCount === 1 ? '' : 's'}`;
+    els.kpiIncomeMeta.textContent = `${kpis.incomeCount} income entr${kpis.incomeCount === 1 ? 'y' : 'ies'}`;
 
     els.kpiExpense.textContent = fmt(kpis.totalExpense);
-    els.kpiExpenseMeta.textContent = `${kpis.expenseCount} expense transaction${kpis.expenseCount === 1 ? '' : 's'}`;
+    els.kpiExpenseMeta.textContent = `${kpis.expenseCount} expense entr${kpis.expenseCount === 1 ? 'y' : 'ies'}`;
 
-    els.kpiNet.textContent = (kpis.netCashFlow >= 0 ? '+' : '') + fmt(kpis.netCashFlow);
-    els.kpiNet.style.color = kpis.netCashFlow >= 0 ? 'var(--color-income)' : 'var(--color-expense)';
-    els.kpiNetMeta.textContent = kpis.netCashFlow >= 0 ? 'Positive net cash flow' : 'Net deficit in period';
+    els.kpiNet.textContent = (kpis.netCashFlow > 0 ? '+' : '') + fmt(kpis.netCashFlow);
+    els.kpiNet.style.color =
+      kpis.netCashFlow > 0
+        ? 'var(--color-income)'
+        : kpis.netCashFlow < 0
+        ? 'var(--color-expense)'
+        : 'var(--text-primary)';
+    els.kpiNetMeta.textContent =
+      kpis.netCashFlow >= 0 ? 'Available net flow' : 'Net deficit in period';
 
     els.kpiSavingsRate.textContent = `${kpis.savingsRate.toFixed(1)}%`;
     els.kpiTopCategory.textContent = kpis.topCategory
-      ? `Top spend: ${kpis.topCategory.category} (${kpis.topCategory.pct}%)`
+      ? `Top: ${kpis.topCategory.category} (${kpis.topCategory.pct}%)`
       : 'Top spend: —';
   }
 
   function renderCharts(analytics) {
-    if (state.activeView !== 'dashboard') return;
+    if (state.activeView !== 'reports') return;
 
     Charts.renderCashFlowTrend(
       els.cashFlowAreaChart,
@@ -666,7 +741,8 @@
   function renderCategoryLegend(categorySeries) {
     if (!els.categoryLegend) return;
     if (categorySeries.length === 0) {
-      els.categoryLegend.innerHTML = '<div style="color:var(--text-muted);font-size:0.82rem;">No expenses in selected range.</div>';
+      els.categoryLegend.innerHTML =
+        '<div style="color:var(--text-muted);font-size:0.82rem;text-align:center;padding:0.5rem 0;">No expenses recorded yet. Tap "+ Add" to log your first expense.</div>';
       return;
     }
 
@@ -674,7 +750,7 @@
       .map((item) => {
         const isActive = state.filters.category === item.category;
         return `
-          <div class="legend-item ${isActive ? 'active-filter' : ''}" data-cat="${Export.escapeHtml(item.category)}" title="Click to filter by ${Export.escapeHtml(item.category)}">
+          <div class="legend-item ${isActive ? 'active-filter' : ''}" data-cat="${Export.escapeHtml(item.category)}">
             <div class="legend-left">
               <span class="legend-swatch" style="background:${item.color}"></span>
               <span>${Export.escapeHtml(item.category)}</span>
@@ -716,25 +792,38 @@
     const startIdx = (state.pagination.page - 1) * pageSize;
     const pageItems = filtered.slice(startIdx, startIdx + pageSize);
 
-    els.tableCountLabel.textContent = `Showing ${pageItems.length} of ${total} matching transactions`;
-    els.paginationInfo.textContent = `Page ${state.pagination.page} of ${totalPages} (${total} total)`;
+    els.tableCountLabel.textContent = `${total} transaction${total === 1 ? '' : 's'}`;
+    els.paginationInfo.textContent = `Page ${state.pagination.page} of ${totalPages}`;
     els.btnPrevPage.disabled = state.pagination.page <= 1;
     els.btnNextPage.disabled = state.pagination.page >= totalPages;
 
     if (pageItems.length === 0) {
+      const emptyMessage =
+        state.transactions.length === 0
+          ? 'No transactions yet. Tap "+ Add" or "Smart Capture" to log your first transaction.'
+          : 'No transactions match your current filters.';
+
       els.transactionsTableBody.innerHTML = `
         <tr>
-          <td colspan="7" style="text-align:center;padding:2rem;color:var(--text-secondary);">
-            No transactions match your current filter criteria.
+          <td colspan="7" style="text-align:center;padding:2.2rem 1rem;color:var(--text-muted);">
+            ${emptyMessage}
           </td>
         </tr>
       `;
+      if (els.mobileTransactionsList) {
+        els.mobileTransactionsList.innerHTML = `
+          <div style="text-align:center;padding:2rem 0.75rem;color:var(--text-muted);font-size:0.86rem;">
+            ${emptyMessage}
+          </div>
+        `;
+      }
       return;
     }
 
+    // 1. Render Desktop Table Rows
     els.transactionsTableBody.innerHTML = pageItems
       .map((tx) => {
-        const catInfo = Data.CATEGORIES[tx.category] || { color: '#6366f1' };
+        const catInfo = Data.CATEGORIES[tx.category] || { color: '#0071e3' };
         const sign = tx.type === 'income' ? '+' : '-';
         const amountClass = tx.type === 'income' ? 'amount-income' : 'amount-expense';
         return `
@@ -742,7 +831,7 @@
             <td>${Export.escapeHtml(tx.date)}</td>
             <td>
               <div style="font-weight:600;">${Export.escapeHtml(tx.description)}</div>
-              ${tx.notes ? `<div style="font-size:0.75rem;color:var(--text-secondary);">${Export.escapeHtml(tx.notes)}</div>` : ''}
+              ${tx.notes ? `<div style="font-size:0.75rem;color:var(--text-muted);">${Export.escapeHtml(tx.notes)}</div>` : ''}
             </td>
             <td>
               <span class="cat-badge">
@@ -755,8 +844,8 @@
             <td class="text-right ${amountClass}">${sign}${Charts.formatCurrency(tx.amount)}</td>
             <td class="text-right">
               <div class="row-actions">
-                <button class="action-icon-btn edit" data-id="${Export.escapeHtml(tx.id)}" title="Edit transaction">Edit</button>
-                <button class="action-icon-btn delete" data-id="${Export.escapeHtml(tx.id)}" title="Delete transaction">Delete</button>
+                <button class="action-icon-btn edit" data-id="${Export.escapeHtml(tx.id)}">Edit</button>
+                <button class="action-icon-btn delete" data-id="${Export.escapeHtml(tx.id)}">Delete</button>
               </div>
             </td>
           </tr>
@@ -764,11 +853,42 @@
       })
       .join('');
 
-    els.transactionsTableBody.querySelectorAll('.action-icon-btn.edit').forEach((btn) => {
+    // 2. Render Mobile Apple-Wallet Card List
+    if (els.mobileTransactionsList) {
+      els.mobileTransactionsList.innerHTML = pageItems
+        .map((tx) => {
+          const catInfo = Data.CATEGORIES[tx.category] || { color: '#0071e3' };
+          const sign = tx.type === 'income' ? '+' : '-';
+          const amountClass = tx.type === 'income' ? 'amount-income' : 'amount-expense';
+          return `
+            <div class="mobile-tx-item">
+              <div class="mobile-tx-left">
+                <span class="mobile-tx-dot" style="background:${catInfo.color}"></span>
+                <div class="mobile-tx-info">
+                  <div class="mobile-tx-title">${Export.escapeHtml(tx.description)}</div>
+                  <div class="mobile-tx-sub">${Export.escapeHtml(tx.date)} • ${Export.escapeHtml(tx.account)}</div>
+                  <div class="mobile-tx-sub">${Export.escapeHtml(tx.category)}</div>
+                </div>
+              </div>
+              <div class="mobile-tx-right">
+                <div class="mobile-tx-amount ${amountClass}">${sign}${Charts.formatCurrency(tx.amount)}</div>
+                <div class="mobile-tx-actions">
+                  <button class="action-icon-btn edit" data-id="${Export.escapeHtml(tx.id)}">Edit</button>
+                  <button class="action-icon-btn delete" data-id="${Export.escapeHtml(tx.id)}">Delete</button>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+    // Bind Edit / Delete buttons across both Desktop and Mobile views
+    document.querySelectorAll('.action-icon-btn.edit').forEach((btn) => {
       btn.addEventListener('click', () => openEditModal(btn.getAttribute('data-id')));
     });
 
-    els.transactionsTableBody.querySelectorAll('.action-icon-btn.delete').forEach((btn) => {
+    document.querySelectorAll('.action-icon-btn.delete').forEach((btn) => {
       btn.addEventListener('click', () => deleteTransaction(btn.getAttribute('data-id')));
     });
   }
@@ -789,16 +909,16 @@
                 ${Export.escapeHtml(b.category)}
               </span>
               <div class="budget-input-wrap">
-                <span>Limit RM</span>
-                <input type="number" min="0" step="10" data-budget-cat="${Export.escapeHtml(b.category)}" value="${b.budget}" />
+                <span>RM</span>
+                <input type="number" min="0" step="10" inputmode="numeric" data-budget-cat="${Export.escapeHtml(b.category)}" value="${b.budget}" />
               </div>
             </div>
             <div class="budget-progress-track">
               <div class="budget-progress-bar" style="width:${pct}%;background:${barColor}"></div>
             </div>
             <div class="budget-stats">
-              <span>Avg/mo: <strong>${Charts.formatCurrency(b.monthlyAvg)}</strong> (${activeMonthCount} mo)</span>
-              <span style="color:${isOver ? 'var(--color-expense)' : 'var(--text-secondary)'};font-weight:600;">
+              <span>Avg/mo: <strong>${Charts.formatCurrency(b.monthlyAvg)}</strong></span>
+              <span style="color:${isOver ? 'var(--color-expense)' : 'var(--text-muted)'};font-weight:600;">
                 ${rawPct}% of budget
               </span>
             </div>
@@ -814,23 +934,81 @@
         state.budgets[cat] = val;
         Data.saveBudgets(state.budgets);
         renderAll();
-        showToast(`Updated ${cat} monthly budget to ${Charts.formatCurrency(val)}`);
+        showToast(`Updated ${cat} budget to ${Charts.formatCurrency(val)}`);
       });
     });
   }
 
-  function openAddModal() {
-    els.modalTitle.textContent = 'Add Transaction';
+  const QUICK_EXPENSE_CHIPS = [
+    { label: '🍔 Dining & Coffee', cat: 'Dining, Mamak & Coffee' },
+    { label: '🛒 Groceries', cat: 'Groceries & Supermarket' },
+    { label: '🚗 Fuel & Tol', cat: 'Fuel, Toll (RFID) & Transit' },
+    { label: '⚡ Utilities', cat: 'Utilities (TNB, Air, Unifi, Telco)' },
+    { label: '🛍️ Shopping', cat: 'Shopping & Online (Shopee/Lazada)' },
+    { label: '💊 Health', cat: 'Health, Takaful & Fitness' },
+    { label: '🎬 Entertainment', cat: 'Entertainment & Subscriptions' },
+    { label: '🏠 Rent/Housing', cat: 'Housing & Loan (LPPSA/Rent)' }
+  ];
+
+  const QUICK_INCOME_CHIPS = [
+    { label: '💰 JANM Gaji', cat: 'Salary & JANM (Gaji Bersih)' },
+    { label: '✨ Elaun & Bonus', cat: 'Elaun, Bonus & Side Income' },
+    { label: '📈 ASB / Dividen', cat: 'ASB, Tabung Haji & Dividends' }
+  ];
+
+  function renderQuickCategoryChips(type, selectedCat) {
+    if (!els.quickCategoryChips) return;
+    const chips = type === 'income' ? QUICK_INCOME_CHIPS : QUICK_EXPENSE_CHIPS;
+    els.quickCategoryChips.innerHTML = chips
+      .map((c) => {
+        const isActive = c.cat === selectedCat;
+        return `<button type="button" class="cat-chip ${isActive ? 'active' : ''}" data-cat="${Export.escapeHtml(c.cat)}">${Export.escapeHtml(c.label)}</button>`;
+      })
+      .join('');
+
+    els.quickCategoryChips.querySelectorAll('.cat-chip').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const cat = btn.getAttribute('data-cat');
+        els.quickCategoryChips.querySelectorAll('.cat-chip').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        els.txCategory.value = cat;
+      });
+    });
+  }
+
+  function setModalType(type) {
+    els.txType.value = type;
+    if (els.btnTypeExpense) els.btnTypeExpense.classList.toggle('active', type === 'expense');
+    if (els.btnTypeIncome) els.btnTypeIncome.classList.toggle('active', type === 'income');
+    syncModalCategories(type);
+    const defaultCat = type === 'income' ? 'Salary & JANM (Gaji Bersih)' : 'Dining, Mamak & Coffee';
+    els.txCategory.value = defaultCat;
+    renderQuickCategoryChips(type, defaultCat);
+    if (els.btnSaveTransaction) {
+      els.btnSaveTransaction.textContent = type === 'income' ? 'Save Income' : 'Save Expense';
+    }
+  }
+
+  function openAddModal(defaultType = 'expense') {
+    els.modalTitle.textContent = defaultType === 'income' ? 'Add Income' : 'Add Expense';
     els.txId.value = '';
-    els.txType.value = 'expense';
-    syncModalCategories('expense');
+    setModalType(defaultType);
     els.txDate.value = Data.formatDateISO(new Date());
     els.txAmount.value = '';
     els.txDescription.value = '';
-    els.txAccount.value = 'DuitNow QR';
+    els.txAccount.value = defaultType === 'income' ? 'RHB Bank (Salary / Debit)' : 'DuitNow QR';
     els.txNotes.value = '';
+    if (els.btnSaveTransaction) {
+      els.btnSaveTransaction.disabled = false;
+    }
     els.transactionModal.hidden = false;
-    els.txDescription.focus();
+
+    // Fast 3-5 second entry: Auto-focus amount field immediately
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (els.txAmount) els.txAmount.focus();
+      }, 50);
+    });
   }
 
   function openEditModal(id) {
@@ -838,8 +1016,7 @@
     if (!tx) return;
     els.modalTitle.textContent = 'Edit Transaction';
     els.txId.value = tx.id;
-    els.txType.value = tx.type;
-    syncModalCategories(tx.type);
+    setModalType(tx.type);
     if (!Array.from(els.txCategory.options).some((o) => o.value === tx.category)) {
       const opt = document.createElement('option');
       opt.value = tx.category;
@@ -847,16 +1024,25 @@
       els.txCategory.appendChild(opt);
     }
     els.txCategory.value = tx.category;
+    renderQuickCategoryChips(tx.type, tx.category);
     els.txDate.value = tx.date;
     els.txAmount.value = tx.amount;
     els.txDescription.value = tx.description;
     els.txAccount.value = tx.account;
     els.txNotes.value = tx.notes || '';
+    if (els.btnSaveTransaction) {
+      els.btnSaveTransaction.disabled = false;
+      els.btnSaveTransaction.textContent = 'Save Changes';
+    }
     els.transactionModal.hidden = false;
+    setTimeout(() => {
+      if (els.txAmount) els.txAmount.focus();
+    }, 50);
   }
 
   function closeModal() {
     els.transactionModal.hidden = true;
+    if (els.btnSaveTransaction) els.btnSaveTransaction.disabled = false;
   }
 
   function deleteTransaction(id) {
@@ -876,7 +1062,7 @@
     els.toastContainer.appendChild(toast);
     setTimeout(() => {
       toast.remove();
-    }, 3200);
+    }, 3000);
   }
 
   function switchView(viewName) {
@@ -885,32 +1071,42 @@
       btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
     });
 
-    if (els.viewSync) els.viewSync.classList.remove('active');
+    const allViews = [els.viewDashboard, els.viewTransactions, els.viewReports, els.viewBudgets, els.viewSync, els.viewGuide];
+    allViews.forEach((v) => {
+      if (v) v.classList.remove('active');
+    });
+
+    const filterBar = document.querySelector('.filter-bar');
+    const showFilter = viewName === 'transactions' || viewName === 'reports';
+    if (filterBar) filterBar.style.display = showFilter ? '' : 'none';
 
     if (viewName === 'dashboard') {
       els.pageTitle.textContent = 'Overview';
-      els.viewDashboard.classList.add('active');
-      els.viewTransactions.classList.add('active');
-      els.viewBudgets.classList.remove('active');
+      els.activeFilterSummary.textContent = 'Personal finance snapshot';
+      if (els.viewDashboard) els.viewDashboard.classList.add('active');
     } else if (viewName === 'transactions') {
-      els.pageTitle.textContent = 'Transactions';
-      els.viewDashboard.classList.remove('active');
-      els.viewTransactions.classList.add('active');
-      els.viewBudgets.classList.remove('active');
+      els.pageTitle.textContent = 'Activity';
+      if (els.viewTransactions) els.viewTransactions.classList.add('active');
+    } else if (viewName === 'reports') {
+      els.pageTitle.textContent = 'Reports';
+      els.activeFilterSummary.textContent = 'Cash flow & category breakdown';
+      if (els.viewReports) els.viewReports.classList.add('active');
     } else if (viewName === 'budgets') {
       els.pageTitle.textContent = 'Budgets';
-      els.viewDashboard.classList.remove('active');
-      els.viewTransactions.classList.remove('active');
-      els.viewBudgets.classList.add('active');
+      els.activeFilterSummary.textContent = 'Monthly spending targets';
+      if (els.viewBudgets) els.viewBudgets.classList.add('active');
     } else if (viewName === 'sync') {
       els.pageTitle.textContent = 'Auto-Capture & Sync';
-      els.viewDashboard.classList.remove('active');
-      els.viewTransactions.classList.add('active');
-      els.viewBudgets.classList.remove('active');
+      els.activeFilterSummary.textContent = 'SMS alerts, DuitNow QR & JANM payday rule';
       if (els.viewSync) els.viewSync.classList.add('active');
+    } else if (viewName === 'guide') {
+      els.pageTitle.textContent = 'Phone Setup Guide';
+      els.activeFilterSummary.textContent = 'Link your iPhone for automatic capture';
+      if (els.viewGuide) els.viewGuide.classList.add('active');
     }
 
     renderAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function renderSmartParserPreview() {
@@ -922,31 +1118,24 @@
     if (parsed.length === 0) {
       els.smartParserPreviewWrap.hidden = true;
       els.btnCommitParsed.disabled = true;
-      els.btnCommitParsed.textContent = 'Add 0 Parsed Transactions to Ledger';
+      els.btnCommitParsed.textContent = 'Add 0 Transactions';
       return;
     }
 
     els.smartParserPreviewWrap.hidden = false;
     els.btnCommitParsed.disabled = false;
-    els.btnCommitParsed.textContent = `Add ${parsed.length} Parsed Transaction${parsed.length === 1 ? '' : 's'} to Ledger`;
+    els.btnCommitParsed.textContent = `Add ${parsed.length} Transaction${parsed.length === 1 ? '' : 's'}`;
 
     els.smartParserPreviewBody.innerHTML = parsed
       .map((tx) => {
-        const catInfo = Data.CATEGORIES[tx.category] || { color: '#6366f1' };
         const sign = tx.type === 'income' ? '+' : '-';
         const amountClass = tx.type === 'income' ? 'amount-income' : 'amount-expense';
         return `
           <tr>
             <td>${Export.escapeHtml(tx.date)}</td>
             <td><strong>${Export.escapeHtml(tx.description)}</strong></td>
-            <td>
-              <span class="cat-badge">
-                <span class="legend-swatch" style="background:${catInfo.color}"></span>
-                ${Export.escapeHtml(tx.category)}
-              </span>
-            </td>
+            <td>${Export.escapeHtml(tx.category)}</td>
             <td>${Export.escapeHtml(tx.account)}</td>
-            <td><span class="type-pill type-${tx.type}">${tx.type}</span></td>
             <td class="text-right ${amountClass}">${sign}${Charts.formatCurrency(tx.amount)}</td>
           </tr>
         `;
@@ -973,12 +1162,37 @@
   }
 
   function bindEvents() {
-    // Sidebar navigation
+    // Sidebar navigation & Bottom Tab Bar
     els.navItems.forEach((btn) => {
       btn.addEventListener('click', () => {
         switchView(btn.getAttribute('data-view'));
       });
     });
+
+    // Desktop Sidebar collapse toggle
+    if (els.btnSidebarToggle) {
+      els.btnSidebarToggle.addEventListener('click', toggleSidebar);
+    }
+
+    // Mobile Top Bar Quick Actions
+    if (els.btnMobileAddTx) {
+      els.btnMobileAddTx.addEventListener('click', openAddModal);
+    }
+    if (els.btnMobileSmartCapture) {
+      els.btnMobileSmartCapture.addEventListener('click', () => {
+        switchView('sync');
+        if (els.smartParserInput) els.smartParserInput.focus();
+      });
+    }
+
+    // Mobile Collapsible Filter Drawer
+    if (els.btnToggleMobileFilters && els.filterSecondaryRow) {
+      els.btnToggleMobileFilters.addEventListener('click', () => {
+        const isOpen = els.filterSecondaryRow.classList.toggle('open');
+        els.btnToggleMobileFilters.classList.toggle('active', isOpen);
+        els.btnToggleMobileFilters.setAttribute('aria-expanded', String(isOpen));
+      });
+    }
 
     // Filter controls
     els.filterSearch.addEventListener('input', (e) => {
@@ -990,6 +1204,9 @@
     els.filterPreset.addEventListener('change', (e) => {
       state.filters.preset = e.target.value;
       applyDatePreset(state.filters.preset);
+      if (state.filters.preset === 'custom' && els.filterSecondaryRow) {
+        els.filterSecondaryRow.classList.add('open');
+      }
       state.pagination.page = 1;
       renderAll();
     });
@@ -1045,9 +1262,10 @@
       els.filterType.value = 'all';
       els.filterCategory.value = 'all';
       els.filterAccount.value = 'all';
+      if (els.customDateGroup) els.customDateGroup.hidden = true;
       state.pagination.page = 1;
       renderAll();
-      showToast('All filters cleared');
+      showToast('Filters reset');
     });
 
     // Chart mode pills
@@ -1112,24 +1330,76 @@
       renderAll();
     });
 
+    // Home Screen Actions
+    if (els.btnHomeAddExpense) {
+      els.btnHomeAddExpense.addEventListener('click', () => openAddModal('expense'));
+    }
+    if (els.btnHomeTodayQuickAdd) {
+      els.btnHomeTodayQuickAdd.addEventListener('click', () => openAddModal('expense'));
+    }
+    if (els.btnHomeManageBudgets) {
+      els.btnHomeManageBudgets.addEventListener('click', () => switchView('budgets'));
+    }
+    if (els.btnHomeViewActivity) {
+      els.btnHomeViewActivity.addEventListener('click', () => switchView('transactions'));
+    }
+    if (els.btnHomeViewReports) {
+      els.btnHomeViewReports.addEventListener('click', () => switchView('reports'));
+    }
+
+    const btnSyncOpenGuide = document.getElementById('btnSyncOpenGuide');
+    if (btnSyncOpenGuide) {
+      btnSyncOpenGuide.addEventListener('click', () => switchView('guide'));
+    }
+
     // Modal Add/Edit
-    els.btnAddTransaction.addEventListener('click', openAddModal);
+    els.btnAddTransaction.addEventListener('click', () => openAddModal('expense'));
     els.btnCloseModal.addEventListener('click', closeModal);
     els.btnCancelModal.addEventListener('click', closeModal);
-    els.txType.addEventListener('change', (e) => syncModalCategories(e.target.value));
+
+    if (els.btnTypeExpense) {
+      els.btnTypeExpense.addEventListener('click', () => setModalType('expense'));
+    }
+    if (els.btnTypeIncome) {
+      els.btnTypeIncome.addEventListener('click', () => setModalType('income'));
+    }
+
+    els.txCategory.addEventListener('change', (e) => {
+      const cat = e.target.value;
+      if (els.quickCategoryChips) {
+        els.quickCategoryChips.querySelectorAll('.cat-chip').forEach((btn) => {
+          btn.classList.toggle('active', btn.getAttribute('data-cat') === cat);
+        });
+      }
+    });
 
     els.transactionForm.addEventListener('submit', (e) => {
       e.preventDefault();
+      if (els.btnSaveTransaction) {
+        if (els.btnSaveTransaction.disabled) return;
+        els.btnSaveTransaction.disabled = true;
+      }
+
       const id = els.txId.value;
+      const amtVal = parseFloat(els.txAmount.value);
+      if (isNaN(amtVal) || amtVal <= 0) {
+        showToast('Please enter an amount greater than 0');
+        if (els.btnSaveTransaction) els.btnSaveTransaction.disabled = false;
+        return;
+      }
+
+      const categoryVal = els.txCategory.value;
+      const descVal = (els.txDescription.value || '').trim() || categoryVal;
+
       const payload = {
         id: id || 'tx_' + Date.now(),
-        type: els.txType.value,
-        date: els.txDate.value,
-        amount: Number(parseFloat(els.txAmount.value).toFixed(2)),
-        category: els.txCategory.value,
-        description: els.txDescription.value.trim(),
-        account: els.txAccount.value,
-        notes: els.txNotes.value.trim()
+        type: els.txType.value || 'expense',
+        date: els.txDate.value || Data.formatDateISO(new Date()),
+        amount: Number(amtVal.toFixed(2)),
+        category: categoryVal,
+        description: descVal,
+        account: els.txAccount.value || 'DuitNow QR',
+        notes: (els.txNotes.value || '').trim()
       };
 
       if (id) {
@@ -1138,7 +1408,7 @@
         showToast(`Updated "${payload.description}"`);
       } else {
         state.transactions.unshift(payload);
-        showToast(`Added "${payload.description}" (${Charts.formatCurrency(payload.amount)})`);
+        showToast(`Recorded: ${payload.description} (${Charts.formatCurrency(payload.amount)})`);
       }
 
       Data.saveTransactions(state.transactions);
@@ -1163,7 +1433,7 @@
           state.transactions = [...imported, ...state.transactions];
           Data.saveTransactions(state.transactions);
           renderAll();
-          showToast(`Successfully imported ${imported.length} transactions from CSV!`);
+          showToast(`Imported ${imported.length} transactions`);
         } catch (err) {
           showToast(`CSV Import Error: ${err.message}`);
         }
@@ -1172,15 +1442,20 @@
       reader.readAsText(file);
     });
 
-    // Reset Sample Data
-    els.btnResetDemo.addEventListener('click', () => {
-      const restored = Data.resetTransactionsToSeed();
-      state.transactions = restored.transactions;
-      state.budgets = restored.budgets;
+    // Clear All Data to RM 0.00
+    const handleClearAllToZero = () => {
+      state.transactions = Data.clearAllTransactions();
       state.pagination.page = 1;
       renderAll();
-      showToast('Restored default sample transactions and budgets');
-    });
+      showToast('All transactions cleared — reset to RM 0.00');
+    };
+
+    if (els.btnResetDemo) {
+      els.btnResetDemo.addEventListener('click', handleClearAllToZero);
+    }
+    if (els.btnClearAllTable) {
+      els.btnClearAllTable.addEventListener('click', handleClearAllToZero);
+    }
 
     // Quick Smart Capture Topbar Button
     if (els.btnQuickSmartCapture) {
@@ -1195,7 +1470,7 @@
       els.btnLoadSampleAlerts.addEventListener('click', () => {
         els.smartParserInput.value = Sync.SAMPLE_NOTIFICATIONS;
         renderSmartParserPreview();
-        showToast('Loaded 5 sample alerts (QR Pay, Apple Pay, Salary, Debit & Credit)');
+        showToast('Loaded sample alerts');
       });
     }
 
@@ -1222,7 +1497,7 @@
         renderSmartParserPreview();
         state.pagination.page = 1;
         renderAll();
-        showToast(`Auto-captured and added ${count} transaction${count === 1 ? '' : 's'} to your ledger!`);
+        showToast(`Added ${count} transaction${count === 1 ? '' : 's'}`);
       });
     }
 
@@ -1239,13 +1514,12 @@
         };
         Data.saveJANMRule(updatedRule);
         updateJANMStatusBanner();
-        showToast(`Saved JANM → RHB Salary Rule (${Charts.formatCurrency(updatedRule.netAmount)}/month)`);
+        showToast(`Saved JANM Rule (${Charts.formatCurrency(updatedRule.netAmount)}/mo)`);
       });
     }
 
     if (els.btnPostJANMNow) {
       els.btnPostJANMNow.addEventListener('click', () => {
-        // Save any edits to amount first
         const currentRule = Data.loadJANMRule();
         currentRule.netAmount = Math.max(100, parseFloat(els.janmNetAmount.value) || 4850);
         Data.saveJANMRule(currentRule);
@@ -1256,14 +1530,12 @@
           Data.saveTransactions(state.transactions);
           updateJANMStatusBanner();
           renderAll();
-          showToast(
-            `Credited JANM Gaji Bersih (${Charts.formatCurrency(res.transaction.amount)}) to RHB Bank!`
-          );
+          showToast(`Credited ${Charts.formatCurrency(res.transaction.amount)} to RHB Bank`);
         }
       });
     }
 
-    // Live iPhone Shortcut Simulations (Malaysian RHB / DuitNow QR / JANM e-Penyata Gaji)
+    // Live iPhone Shortcut Simulations
     if (els.btnSimApplePay) {
       els.btnSimApplePay.addEventListener('click', () => {
         const tx = Sync.parseSingleNotificationLine(
@@ -1274,7 +1546,7 @@
           state.transactions.unshift(tx);
           Data.saveTransactions(state.transactions);
           renderAll();
-          showToast(`iPhone Apple Pay (RHB) Captured: ${tx.description} (-${Charts.formatCurrency(tx.amount)})`);
+          showToast(`Apple Pay: ${tx.description} (-${Charts.formatCurrency(tx.amount)})`);
         }
       });
     }
@@ -1289,7 +1561,7 @@
           state.transactions.unshift(tx);
           Data.saveTransactions(state.transactions);
           renderAll();
-          showToast(`DuitNow QR Captured: ${tx.description} (-${Charts.formatCurrency(tx.amount)})`);
+          showToast(`DuitNow QR: ${tx.description} (-${Charts.formatCurrency(tx.amount)})`);
         }
       });
     }
@@ -1306,12 +1578,12 @@
           Data.saveTransactions(state.transactions);
           updateJANMStatusBanner();
           renderAll();
-          showToast(`JANM Gaji Bersih Captured: +${Charts.formatCurrency(tx.amount)} into RHB Bank`);
+          showToast(`JANM Gaji Bersih: +${Charts.formatCurrency(tx.amount)} into RHB Bank`);
         }
       });
     }
 
-    // Google Cloud Sync & Apps Script Copy
+    // Google Cloud Sync
     if (els.btnSyncGoogleNow) {
       els.btnSyncGoogleNow.addEventListener('click', async () => {
         const cfg = Sync.loadSyncConfig();
@@ -1332,72 +1604,19 @@
           Data.saveTransactions(state.transactions);
           initSyncSettingsUI();
           renderAll();
-          showToast(`Google Cloud Sync complete! (+${result.pulledCount} pulled, ${result.pushedCount} pushed)`);
+          showToast(`Synced (+${result.pulledCount} pulled, ${result.pushedCount} pushed)`);
         } catch (err) {
-          showToast(`Cloud Sync Error: ${err.message}`);
+          showToast(`Sync Error: ${err.message}`);
         } finally {
           els.btnSyncGoogleNow.disabled = false;
-          els.btnSyncGoogleNow.textContent = 'Save & Sync with Google Cloud';
+          els.btnSyncGoogleNow.textContent = 'Sync Now';
         }
       });
     }
 
     if (els.btnCopyAppsScript) {
       els.btnCopyAppsScript.addEventListener('click', () => {
-        showToast('Open integrations/google-apps-script.gs in your project folder to copy the full Gmail + Google Sheets bridge script.');
-      });
-    }
-
-    // Sidebar collapse / expand toggle
-    if (els.btnSidebarToggle) {
-      els.btnSidebarToggle.addEventListener('click', toggleSidebar);
-    }
-
-    // Apple / Google Sign-In & Salutation Nickname Modal
-    if (els.btnAuthOpen) {
-      els.btnAuthOpen.addEventListener('click', openAuthModal);
-    }
-    if (els.btnEditNickname) {
-      els.btnEditNickname.addEventListener('click', openAuthModal);
-    }
-    if (els.btnCloseAuthModal) {
-      els.btnCloseAuthModal.addEventListener('click', closeAuthModal);
-    }
-    if (els.btnCancelAuthModal) {
-      els.btnCancelAuthModal.addEventListener('click', closeAuthModal);
-    }
-    if (els.btnSignInApple) {
-      els.btnSignInApple.addEventListener('click', () => handleProviderSignIn('apple'));
-    }
-    if (els.btnSignInGoogle) {
-      els.btnSignInGoogle.addEventListener('click', () => handleProviderSignIn('google'));
-    }
-    if (els.authProfileForm) {
-      els.authProfileForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const current = loadUserProfile();
-        const updated = {
-          ...current,
-          nickname: (els.authNicknameInput.value || '').trim() || 'Amir',
-          email: (els.authEmailInput.value || '').trim()
-        };
-        saveUserProfile(updated);
-        renderSalutationAndAuth();
-        closeAuthModal();
-        showToast(`Greeting updated: ${getTimeOfDayGreeting()}, ${updated.nickname}`);
-      });
-    }
-    if (els.btnSignOutAccount) {
-      els.btnSignOutAccount.addEventListener('click', () => {
-        const current = loadUserProfile();
-        saveUserProfile({
-          nickname: current.nickname || 'Amir',
-          email: '',
-          provider: null
-        });
-        renderSalutationAndAuth();
-        closeAuthModal();
-        showToast('Signed out of cloud account');
+        switchView('guide');
       });
     }
 
