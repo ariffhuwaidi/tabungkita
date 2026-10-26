@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="TabungKita" />
+  <link rel="manifest" href="manifest.json" />
+  <title>TabungKita</title>
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('tabungkita_theme_pref_v1');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = (saved === 'dark' || saved === 'light') ? saved : (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d1d1f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1'/%3E%3Cpath d='M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <!-- Collapsible Minimalist Apple-Style Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="brand" title="TabungKita">
+          <div class="brand-logo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
+              <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
+            </svg>
+          </div>
+          <span class="brand-name nav-text">TabungKita</span>
+        </div>
+
+        <button class="sidebar-toggle-btn" id="btnSidebarToggle" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3" />
+            <line x1="9" y1="3" x2="9" y2="21" />
+          </svg>
+        </button>
+
+        <!-- Mobile-Only Header Utilities -->
+        <div class="mobile-top-actions">
+          <button class="sidebar-toggle-btn" id="btnMobileThemeToggle" title="Switch Appearance" aria-label="Switch Appearance">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <nav class="side-nav" aria-label="Main Navigation">
+        <button class="nav-item active" data-view="dashboard" title="Overview">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+          <span class="nav-text">Overview</span>
+        </button>
+        <button class="nav-item" data-view="transactions" title="Transactions">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <span class="nav-text">Transactions</span>
+        </button>
+        <button class="nav-item" data-view="budgets" title="Budgets">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+          <span class="nav-text">Budgets</span>
+        </button>
+        <button class="nav-item" data-view="sync" title="Auto-Capture & Sync">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2.5" ry="2.5"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          <span class="nav-text">Auto-Capture</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label nav-text">Export</div>
+        <button class="side-action-btn" id="btnExportCSV" title="Export CSV">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span class="nav-text">Export CSV</span>
+        </button>
+        <button class="side-action-btn" id="btnExportPDF" title="PDF Report">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span class="nav-text">PDF Report</span>
+        </button>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="side-util-btn" id="btnResetDemo" title="Reset Sample Data">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          <span class="nav-text">Reset Data</span>
+        </button>
+        <button class="side-util-btn" id="btnThemeToggle" title="Switch Appearance">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <span class="nav-text" id="themeToggleLabel">Dark Mode</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main class="main-content">
+      <!-- Apple-style Minimalist Header with Salutation & Account Pill -->
+      <header class="topbar">
+        <div class="topbar-title">
+          <p class="salutation">
+            <span id="salutationPrefix">Good Afternoon</span>,
+            <button type="button" class="nickname-btn" id="btnEditNickname" title="Click to personalize your nickname or account">
+              <span id="userNicknameDisplay">Amir</span>
+            </button>
+          </p>
+          <h1 id="pageTitle">Overview</h1>
+          <p class="subtitle" id="activeFilterSummary">Showing all transactions</p>
+        </div>
+
+        <div class="topbar-actions">
+          <!-- Apple / Google Login & Sync Status Pill -->
+          <button class="auth-account-pill" id="btnAuthOpen" title="Sign in with Apple or Google for automatic transaction capture">
+            <span class="auth-status-dot" id="authStatusDot"></span>
+            <span id="authAccountLabel">Sign in with Apple / Google</span>
+          </button>
+
+          <button class="btn btn-secondary" id="btnQuickSmartCapture" title="Paste SMS, QR receipt, or e-Penyata Gaji to auto-capture">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>Smart Capture</span>
+          </button>
+
+          <label class="btn btn-secondary" for="csvImportInput" title="Import transactions from a CSV file">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Import</span>
+            <input type="file" id="csvImportInput" accept=".csv" hidden />
+          </label>
+
+          <button class="btn btn-primary" id="btnAddTransaction">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>New</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Minimalist Filter Ribbon -->
+      <section class="filter-bar" aria-label="Data Filters">
+        <div class="filter-group search-group">
+          <svg class="search-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="search" id="filterSearch" placeholder="Search merchant, DuitNow QR, RHB..." autocomplete="off" />
+        </div>
+
+        <div class="filter-group">
+          <label for="filterPreset">Period</label>
+          <select id="filterPreset">
+            <option value="all">All Time</option>
+            <option value="30d">Last 30 Days</option>
+            <option value="90d">Last 90 Days</option>
+            <option value="6m" selected>Last 6 Months</option>
+            <option value="ytd">Year to Date</option>
+            <option value="12m">Last 12 Months</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+
+        <div class="filter-group date-inputs" id="customDateGroup">
+          <label for="filterDateFrom">From</label>
+          <input type="date" id="filterDateFrom" />
+          <label for="filterDateTo">To</label>
+          <input type="date" id="filterDateTo" />
+        </div>
+
+        <div class="filter-group">
+          <label for="filterType">Type</label>
+          <select id="filterType">
+            <option value="all">All</option>
+            <option value="expense">Expenses</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filterCategory">Category</label>
+          <select id="filterCategory">
+            <option value="all">All Categories</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filterAccount">Account</label>
+          <select id="filterAccount">
+            <option value="all">All Accounts</option>
+          </select>
+        </div>
+
+        <button class="btn-link" id="btnClearFilters" title="Reset filters">Reset</button>
+      </section>
+
+      <!-- Apple Bento KPI Cards -->
+      <section class="kpi-grid" aria-label="Key Financial Metrics">
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Income</span>
+          </div>
+          <div class="kpi-value" id="kpiIncome">RM 0.00</div>
+          <div class="kpi-meta" id="kpiIncomeMeta">0 income entries</div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Expenses</span>
+          </div>
+          <div class="kpi-value" id="kpiExpense">RM 0.00</div>
+          <div class="kpi-meta" id="kpiExpenseMeta">0 expense entries</div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Net Balance</span>
+          </div>
+          <div class="kpi-value" id="kpiNet">RM 0.00</div>
+          <div class="kpi-meta" id="kpiNetMeta">Income minus expenses</div>
+        </article>
+
+        <article class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Savings Rate</span>
+          </div>
+          <div class="kpi-value" id="kpiSavingsRate">0.0%</div>
+          <div class="kpi-meta" id="kpiTopCategory">Top expense: —</div>
+        </article>
+      </section>
+
+      <!-- VIEW 1: OVERVIEW & CHARTS -->
+      <div id="viewDashboard" class="view-section active">
+        <section class="charts-grid">
+          <div class="chart-card chart-wide">
+            <div class="card-header">
+              <div>
+                <h2>Cash Flow Trajectory</h2>
+                <p class="card-sub">Monthly income, expenses, and net savings</p>
+              </div>
+              <div class="chart-mode-pills" id="trendChartTypeToggle">
+                <button class="pill active" data-mode="area">Area</button>
+                <button class="pill" data-mode="line">Line</button>
+              </div>
+            </div>
+            <div class="canvas-wrap">
+              <canvas id="cashFlowAreaChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="card-header">
+              <div>
+                <h2>Spending by Category</h2>
+                <p class="card-sub">Select any segment to filter</p>
+              </div>
+              <div class="chart-mode-pills" id="pieChartTypeToggle">
+                <button class="pill active" data-mode="donut">Donut</button>
+                <button class="pill" data-mode="pie">Pie</button>
+              </div>
+            </div>
+            <div class="donut-layout">
+              <div class="canvas-wrap canvas-donut">
+                <canvas id="categoryDonutChart"></canvas>
+              </div>
+              <div class="donut-legend" id="categoryLegend"></div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="card-header">
+              <div>
+                <h2>Monthly Comparison</h2>
+                <p class="card-sub">Income versus expenses by month</p>
+              </div>
+            </div>
+            <div class="canvas-wrap">
+              <canvas id="monthlyBarChart"></canvas>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <div class="card-header">
+              <div>
+                <h2>Budget Utilization</h2>
+                <p class="card-sub">Average monthly spend against target limit</p>
+              </div>
+            </div>
+            <div class="canvas-wrap">
+              <canvas id="budgetBarChart"></canvas>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- VIEW 2: TRANSACTIONS LEDGER -->
+      <div id="viewTransactions" class="view-section active">
+        <section class="table-card">
+          <div class="card-header table-header">
+            <div>
+              <h2>Transactions</h2>
+              <p class="card-sub" id="tableCountLabel">Showing 0 transactions</p>
+            </div>
+            <div class="table-controls">
+              <label for="pageSizeSelect" class="sr-only">Rows per page</label>
+              <select id="pageSizeSelect" title="Rows per page">
+                <option value="10">10 rows</option>
+                <option value="25">25 rows</option>
+                <option value="50">50 rows</option>
+                <option value="100">100 rows</option>
+              </select>
+              <button class="btn btn-secondary btn-sm" id="btnExportCSVTable">CSV</button>
+              <button class="btn btn-secondary btn-sm" id="btnExportPDFTable">PDF</button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table" id="transactionsTable">
+              <thead>
+                <tr>
+                  <th data-sort="date" class="sortable sort-desc">Date <span class="sort-indicator">▼</span></th>
+                  <th data-sort="description" class="sortable">Merchant <span class="sort-indicator"></span></th>
+                  <th data-sort="category" class="sortable">Category <span class="sort-indicator"></span></th>
+                  <th data-sort="account" class="sortable">Account <span class="sort-indicator"></span></th>
+                  <th data-sort="type" class="sortable">Type <span class="sort-indicator"></span></th>
+                  <th data-sort="amount" class="sortable text-right">Amount <span class="sort-indicator"></span></th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="transactionsTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="table-pagination">
+            <div class="pagination-info" id="paginationInfo">Page 1 of 1</div>
+            <div class="pagination-buttons">
+              <button class="btn btn-secondary btn-sm" id="btnPrevPage" disabled>Previous</button>
+              <button class="btn btn-secondary btn-sm" id="btnNextPage" disabled>Next</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- VIEW 3: BUDGETS & GOALS -->
+      <div id="viewBudgets" class="view-section">
+        <section class="budgets-card">
+          <div class="card-header">
+            <div>
+              <h2>Monthly Budgets</h2>
+              <p class="card-sub">Set target monthly limits per category.</p>
+            </div>
+          </div>
+          <div class="budgets-grid" id="budgetsGrid"></div>
+        </section>
+      </div>
+
+      <!-- VIEW 4: AUTO-CAPTURE & DEVICE SYNC -->
+      <div id="viewSync" class="view-section">
+        <div class="sync-hub-grid">
+          <!-- Panel 0: JANM -> RHB Bank Silent Salary Auto-Detector -->
+          <section class="chart-card sync-wide">
+            <div class="card-header">
+              <div>
+                <h2>JANM → RHB Bank Auto-Salary</h2>
+                <p class="card-sub">Automatically credits your monthly <strong>Gaji Bersih</strong> into <strong>RHB Bank</strong> on the official JANM Payday even when RHB sends no SMS notification.</p>
+              </div>
+              <span class="type-pill type-income" id="janmStatusBadge">Active</span>
+            </div>
+
+            <div class="form-row" style="grid-template-columns: repeat(4, 1fr);">
+              <div class="form-group">
+                <label for="janmNetAmount">Monthly Gaji Bersih (RM)</label>
+                <input type="number" id="janmNetAmount" step="0.01" min="100" value="4850.00" />
+              </div>
+              <div class="form-group">
+                <label for="janmScheduleMode">Payday Schedule</label>
+                <select id="janmScheduleMode">
+                  <option value="janm_official">Official JANM Jadual Gaji (19th–25th)</option>
+                  <option value="fixed_day">Fixed Day of Month</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="janmFixedDay">Custom Day</label>
+                <input type="number" id="janmFixedDay" min="1" max="28" value="24" />
+              </div>
+              <div class="form-group">
+                <label for="janmAutoEnabled">Auto-Post</label>
+                <select id="janmAutoEnabled">
+                  <option value="true">Automatic</option>
+                  <option value="false">Manual Only</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-top:0.4rem;">
+              <div id="janmCurrentMonthInfo" style="font-size:0.84rem;color:var(--text-secondary);">
+                Checking JANM → RHB salary status...
+              </div>
+              <div class="sim-buttons">
+                <button class="btn btn-secondary btn-sm" id="btnSaveJANMRule">Save Rule</button>
+                <button class="btn btn-primary btn-sm" id="btnPostJANMNow">Credit JANM Salary Now</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Panel A: Smart SMS / QR Receipt / e-Penyata Gaji Parser -->
+          <section class="chart-card sync-wide">
+            <div class="card-header">
+              <div>
+                <h2>Smart Capture (e-Penyata Gaji, DuitNow QR &amp; RHB)</h2>
+                <p class="card-sub">Paste text from your JANM e-Penyata Gaji slip, RHB history, DuitNow QR receipts, or Apple Pay alerts.</p>
+              </div>
+              <div class="table-controls">
+                <button class="btn btn-secondary btn-sm" id="btnLoadSampleAlerts">Load Sample Alerts</button>
+              </div>
+            </div>
+
+            <div class="smart-parser-box">
+              <textarea id="smartParserInput" rows="4" placeholder="Paste JANM e-Penyata Gaji text, RHB transaction history, DuitNow QR receipt, or Apple Pay alert here..."></textarea>
+              <div class="smart-parser-actions">
+                <button class="btn btn-secondary" id="btnParsePreview">Preview</button>
+                <button class="btn btn-primary" id="btnCommitParsed" disabled>Add 0 Transactions</button>
+              </div>
+            </div>
+
+            <div id="smartParserPreviewWrap" class="table-responsive" hidden style="margin-top:1rem;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Merchant</th>
+                    <th>Category</th>
+                    <th>Account</th>
+                    <th>Type</th>
+                    <th class="text-right">Amount (RM)</th>
+                  </tr>
+                </thead>
+                <tbody id="smartParserPreviewBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Panel B: iPhone / Apple ID Integration -->
+          <section class="chart-card">
+            <div class="card-header">
+              <div>
+                <h2>iPhone &amp; Apple Wallet Shortcuts</h2>
+                <p class="card-sub">Capture Apple Pay taps, DuitNow QR screenshots, and bank SMS alerts automatically.</p>
+              </div>
+            </div>
+
+            <div class="guide-steps">
+              <div class="guide-step">
+                <div class="step-badge">1</div>
+                <div>
+                  <strong>Apple Pay Tap Automation</strong>
+                  <p>In iOS <strong>Shortcuts → Automation → Transaction</strong>, send the Wallet merchant and amount to your linked cloud endpoint or open TabungKita.</p>
+                </div>
+              </div>
+
+              <div class="guide-step">
+                <div class="step-badge">2</div>
+                <div>
+                  <strong>DuitNow QR &amp; RHB Back-Tap OCR</strong>
+                  <p>Bind <strong>Take Screenshot → Extract Text → Send to TabungKita</strong> to iPhone <strong>Back Tap</strong> after any QR scan or RHB balance check.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="simulator-box">
+              <div class="sidebar-label" style="padding-left:0;">Quick Test</div>
+              <div class="sim-buttons">
+                <button class="btn btn-secondary btn-sm" id="btnSimApplePay">Apple Pay (RM 24.90)</button>
+                <button class="btn btn-secondary btn-sm" id="btnSimQRPay">DuitNow QR (RM 14.90)</button>
+                <button class="btn btn-secondary btn-sm" id="btnSimSalary">JANM Salary (+RM 4,850)</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Panel C: Google Cloud & Gmail Scanner -->
+          <section class="chart-card">
+            <div class="card-header">
+              <div>
+                <h2>Google Cloud &amp; Gmail Sync</h2>
+                <p class="card-sub">Sync FPX receipts, JomPAY bills, and iPhone webhooks via your Google account.</p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="syncWebAppUrl">Google Apps Script Web App URL</label>
+              <input type="text" id="syncWebAppUrl" placeholder="https://script.google.com/macros/s/.../exec" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="syncTokenInput">Secret Token (Optional)</label>
+                <input type="text" id="syncTokenInput" placeholder="Optional passphrase" />
+              </div>
+              <div class="form-group">
+                <label>Sync Status</label>
+                <div id="syncStatusText" style="font-size:0.82rem;color:var(--text-secondary);padding-top:0.5rem;">Not synced yet</div>
+              </div>
+            </div>
+
+            <div class="sim-buttons" style="margin-top:0.5rem;">
+              <button class="btn btn-primary btn-sm" id="btnSyncGoogleNow">Sync Now</button>
+              <button class="btn btn-secondary btn-sm" id="btnCopyAppsScript">Apps Script Guide</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Apple / Google Sign-In & Profile Personalization Modal -->
+  <div class="modal-backdrop" id="authModal" hidden>
+    <div class="modal-dialog auth-dialog" role="dialog" aria-labelledby="authModalTitle" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="authModalTitle">Sign in to TabungKita</h3>
+        <button class="modal-close" id="btnCloseAuthModal" aria-label="Close">&times;</button>
+      </div>
+
+      <p class="auth-lead">
+        Link your <strong>Apple Account (iCloud)</strong> or <strong>Google Account</strong> to personalize your greeting and enable automatic transaction capture across your devices.
+      </p>
+
+      <div class="oauth-buttons">
+        <button type="button" class="oauth-btn oauth-apple" id="btnSignInApple">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+            <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+          </svg>
+          <span>Continue with Apple</span>
+        </button>
+
+        <button type="button" class="oauth-btn oauth-google" id="btnSignInGoogle">
+          <svg viewBox="0 0 24 24" width="18" height="18">
+            <path fill="#4285F4" d="M21.35 11.1h-9.17v2.73h6.51c-.33 1.81-1.5 3.34-3.2 4.37v3.62h5.18c3.03-2.79 4.78-6.9 4.78-11.72 0-.8-.08-1.57-.22-2.31z"/>
+            <path fill="#34A853" d="M12.18 22c4.32 0 7.95-1.43 10.6-3.88l-5.18-3.62c-1.43.96-3.26 1.53-5.42 1.53-4.17 0-7.7-2.81-8.96-6.6H-2.1v3.73C.54 18.4 5.94 22 12.18 22z" transform="translate(0 -0.5)"/>
+            <path fill="#FBBC05" d="M3.22 14.93c-.32-.96-.5-1.99-.5-3.05s.18-2.09.5-3.05V5.1H-2.1C-3.18 7.25-3.8 9.68-3.8 11.88s.62 4.63 1.7 6.78l5.32-3.73z" transform="translate(4 0)"/>
+            <path fill="#EA4335" d="M12.18 5.38c2.35 0 4.46.81 6.12 2.4l4.59-4.59C20.12.69 16.5 0 12.18 0 5.94 0 .54 3.6-2.1 8.84l5.32 3.73c1.26-3.79 4.79-6.6 8.96-6.6z" transform="translate(0 0.5)"/>
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+      </div>
+
+      <div class="auth-divider"><span>Profile &amp; Auto-Capture Settings</span></div>
+
+      <form id="authProfileForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="authNicknameInput">Your Nickname (for Greeting)</label>
+            <input type="text" id="authNicknameInput" placeholder="e.g., Amir" required />
+          </div>
+          <div class="form-group">
+            <label for="authEmailInput">Linked Apple ID / Google Email</label>
+            <input type="email" id="authEmailInput" placeholder="you@icloud.com or you@gmail.com" />
+          </div>
+        </div>
+
+        <div class="auth-connected-box" id="authConnectedInfo" hidden>
+          <div class="auth-connected-title" id="authConnectedBadge">Connected via Apple iCloud</div>
+          <p class="auth-connected-sub">Instant Webhook &amp; URL Auto-Capture active for this device.</p>
+        </div>
+
+        <div class="modal-actions" style="justify-content: space-between;">
+          <button type="button" class="btn-link" id="btnSignOutAccount" hidden>Sign Out</button>
+          <div style="display:flex;gap:0.65rem;margin-left:auto;">
+            <button type="button" class="btn btn-secondary" id="btnCancelAuthModal">Close</button>
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Transaction Modal -->
+  <div class="modal-backdrop" id="transactionModal" hidden>
+    <div class="modal-dialog" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="modalTitle">New Transaction</h3>
+        <button class="modal-close" id="btnCloseModal" aria-label="Close">&times;</button>
+      </div>
+      <form id="transactionForm">
+        <input type="hidden" id="txId" />
+        <div class="form-row">
+          <div class="form-group">
+            <label for="txType">Type</label>
+            <select id="txType" required>
+              <option value="expense">Expense (-)</option>
+              <option value="income">Income (+)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="txDate">Date</label>
+            <input type="date" id="txDate" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="txAmount">Amount (RM)</label>
+            <input type="number" id="txAmount" step="0.01" min="0.01" placeholder="0.00" required />
+          </div>
+          <div class="form-group">
+            <label for="txCategory">Category</label>
+            <select id="txCategory" required></select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="txDescription">Merchant / Description</label>
+            <input type="text" id="txDescription" placeholder="e.g., ZUS Coffee DuitNow QR, JANM Gaji Bersih" required />
+          </div>
+          <div class="form-group">
+            <label for="txAccount">Account</label>
+            <select id="txAccount" required>
+              <option value="RHB Bank (Salary / Debit)">RHB Bank (Salary / Debit)</option>
+              <option value="DuitNow QR">DuitNow QR</option>
+              <option value="Touch 'n Go eWallet">Touch 'n Go eWallet</option>
+              <option value="Apple Pay (RHB Visa)">Apple Pay (RHB Visa)</option>
+              <option value="Maybank / MAE">Maybank / MAE</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="ASB / Tabung Haji Savings">ASB / Tabung Haji Savings</option>
+              <option value="Cash Wallet">Cash Wallet</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="txNotes">Notes (Optional)</label>
+          <input type="text" id="txNotes" placeholder="Optional memo or tag" />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="btnCancelModal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Interactive Chart Tooltip -->
+  <div id="chartTooltip" class="chart-tooltip" hidden></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Printable PDF Report Container -->
+  <div id="printReportContainer" class="print-report" aria-hidden="true"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/sync.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
